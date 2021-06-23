@@ -34,6 +34,13 @@ RUN wget -q https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfm
   && chmod +x /usr/local/bin/shfmt \
   && shfmt -version
 
+ARG TERRAFORM_VERSION=0.13.5
+RUN wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+  && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+  && cp terraform /usr/local/bin \
+  && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+  && terraform --version
+
 COPY docker/ci/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -70,3 +77,7 @@ RUN helm lint --strict ./helm/opwen_cloudserver \
  && rm helm.yaml
 
 RUN shfmt -d -i 2 -ci .
+
+RUN terraform fmt -check
+
+RUN terraform validate -no-color

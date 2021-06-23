@@ -64,3 +64,28 @@ jobs:
             ci build verify-build
       - run: bash <(curl -s https://codecov.io/bash)
         if: ${{ success() }}
+  
+  terraform-plan:
+    runs-on: ubuntu-18.04
+
+    env:
+      ARM_CLIENT_ID: ${{secrets.SP_CLIENT}}
+      ARM_CLIENT_SECRET: ${{secrets.SP_PASSWORD}}
+      ARM_SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}
+      ARM_TENANT_ID: ${{secrets.SP_TENANT}}
+    
+    defaults:
+      run:
+        working-directory: "./docker/setup/terraform"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
